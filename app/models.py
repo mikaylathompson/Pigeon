@@ -9,6 +9,15 @@ class User(db.Model):
     privatekey = db.Column(db.String(1024))
     recMessages = db.relationship('Message', backref='receivedMessages', lazy='dynamic')
     friendships = db.relationship('Friend', backref='friendships', lazy='dynamic')
+
+    def is_authenticated(self):
+        return True
+    def is_active(self):
+        return True
+    def is_anonymous(self):
+        return False
+    def get_id(self):
+        return unicode(self.id)
     
     def __repr__(self):
         return '<User %r>'%(self.name)
