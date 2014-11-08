@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, EqualTo
 
 class LoginForm(Form):
@@ -8,8 +8,14 @@ class LoginForm(Form):
 
 class SignupForm(Form):
     username = StringField('username', [DataRequired()])
-    password = PasswordField('password', 
+    password = PasswordField('password',
             [DataRequired(), EqualTo('confirm', message='Passwords must match.')])
     confirm = PasswordField('confirm')
+
+class NewMessageForm(Form):
+    destination = StringField('dest', [DataRequired()])
+    message = StringField('message', [DataRequired()])
+    destKey = StringField('destkey')
+    is_encrypted = BooleanField('isencrypted')
 
 

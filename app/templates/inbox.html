@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1> Inbox </h1>
+
+<div class="messages">
+		{% for m in messages %}
+		{% if m.encryp and not m.read %} <div class="message encrypted unread">
+		{% elif m.encryp %} <div class="message encrypted">
+		{% elif not m.read %} <div class="message unread">
+		{% else %} <div class="message">
+		{% endif %}
+				<div class="origin">
+						{{m.originName}}
+				</div>
+				<div class="sentTime">
+						{{m.sent}}
+				</div>
+		</div>
+		{% endfor %}
+</div>
+
+{% endblock %}
