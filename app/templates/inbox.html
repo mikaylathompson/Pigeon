@@ -10,12 +10,14 @@
 		{% elif not m.read %} <div class="message unread">
 		{% else %} <div class="message">
 		{% endif %}
+		<a href="{{ url_for('viewmessage', mid=m.id) }}">
 				<div class="origin">
 						{{m.originName}}
 				</div>
 				<div class="sentTime">
 						{{m.sent}}
 				</div>
+		</a>
 		</div>
 		{% endfor %}
 </div>

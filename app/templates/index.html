@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 	<h1>Pigeon</h1>
-	<p>{{ user.name }}'s Messages</p>
+	<a href="{{ url_for('signup') }}">Sign up</a>
+	<a href="{{ url_for('login') }}">Login</a>
+	<a href="{{ url_for('inbox') }}">Inbox</a>
+	<a href="{{ url_for('compose') }}">Compose</a>
+	<a href="{{ url_for('logout') }}">Logout</a>
+
 {% endblock %}

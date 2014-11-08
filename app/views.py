@@ -16,9 +16,7 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-    user = {'name': 'FAKEUSER'}
-    return render_template('index.html',
-                    user=user)
+    return render_template('index.html')
 
 @app.route('/inbox')
 @login_required
@@ -75,6 +73,21 @@ def compose():
     return render_template('compose.html',
                     title='Compose Message',
                     form=form)
+
+@app.route("/m/<mid>")
+@login_required
+def viewmessage(mid):
+    user = g.user
+    mess = Message.query.get(int(mid))
+    text = mess.text
+    mess.read = True
+    if (mess.encryp):
+        text = "SOMETHING DECRYPTED"
+        # decrypt the message here
+    return render_template('message.html',
+					message = mess,
+					text=text)
+
 
 @app.route("/logout")
 @login_required
