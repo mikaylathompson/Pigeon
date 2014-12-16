@@ -26,6 +26,13 @@ def publickey(name):
         return jsonify({'status': 'true', 'user': user.name, 'publickey': user.publickey})
     return jsonify({'status': 'false', 'user': name})
 
+@app.route('/api/privatekey/<name>', methods=['GET'])
+def privatekey(name):
+    user = load_user(name)
+    if user is not None:
+        return jsonify({'status': 'true', 'user': user.name, 'privatekey': user.privatekey})
+    return jsonify({'status': 'false', 'user': name})
+
 @app.route('/api/users', methods=['GET'])
 def users():
     return jsonify({'users': [{'name':u.name, 'id':u.id} for u in User.query.all()]})

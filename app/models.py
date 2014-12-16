@@ -31,7 +31,7 @@ class Message(db.Model):
     def json(self):
         j = {}
         j['id'] = self.id
-        j['text'] = self.text
+        j['content'] = self.text
         j['sent'] = self.sent
         j['read'] = self.read
         j['destName'] = self.destName
