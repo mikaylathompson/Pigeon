@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pigeon</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	<script src="jquery-1.11.1.min.js"></script>
+	<script src="knockout-3.2.0.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	<script src="forge.min.js"></script>
+</head>
+<body>
+	<div id="navbar" class="navbar navbar-default" role="navigation" >
+		<div class="container-fluid" >
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Pigeon</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li id="inbox-nav" class="active"><a href="#">Inbox</a></li>
+				<li id="compose-nav"><a data-bind="click: compose" href="#">Compose</a></li>
+				<li id="signup-nav"><a data-bind="click: signup" href="#">Sign Up</a></li>
+				<li id="login-nav"><a href="#">Log in</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div id="main" class="container">
+		<div class="row">
+			<div class="col-md-10">
+				<table class="table table-striped "> <!--style="width: 80%;">-->
+			<thead>
+			<tr>
+				<th class="col-md-1">Sender</th>
+				<th class="col-md-1">Sent Time</th>
+				<th class="col-md-2">Message Body</th>
+				<th class="col-md-1"></th>
+			</tr>
+			</thead>
+			<tbody>
+			<!-- ko foreach: messages -->
+			<tr>
+				<td class="col-md-1">
+					<span data-bind="text: originName"></span>
+				</td>
+				<td class="col-md-1">
+					<span data-bind="text: sent"></span>
+				</td>
+				<td class="col-md-2" style="max-width: 300px; word-wrap: break-word;">
+					<span data-bind="text: content"></span>
+				</td>
+				<td class="col-md-1">
+					<button data-bind="click: $parent.decrypt" class="btn">Decrypt</button>
+				</td>
+			</tr>
+			<!-- /ko -->
+			</tbody>
+		</table>
+		</div>
+		<div class="col-md-2">
+			<img src="carrier.png" style="max-width: 135%;position: absolute;top: -60px;left: -16px;">
+		</div>
+		</div>
+	</div>
+
+	<div id="compose" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="composeDialogLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+			<h3 id="composeDialogLabel">Compose New Message</h3>
+		</div>
+		<div class="modal-body">
+			<form class="form-horizontal">
+				<div class="control-group">
+					<div class="controls">
+						<input data-bind="value: destName" type="text" style="width: 300px" id="inputDest">
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<textarea data-bind="value: content" style="width: 300px" rows="5" type="text" id="inputContent"></textarea>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="modal-footer">
+			<button data-bind="click: encryptMessage" class="btn btn-primary">Encrypt</button>
+			<button data-bind="click: sendMessage" class="btn btn-primary">Send</button>
+		</div>
+		</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="decrypt" tabindex="-1" role="dialog" aria-labelledby="decryptDialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h3 id="decryptDialogLabel">Decrypt</h3>
+				</div>
+				<div class="modal-body" id="decryptpassbody">
+					<form class="form-horizontal">
+						<label class="control-label" for="decryptPass">Password</label>
+						<input data-bind="value: pass" type="password" style="width: 200px" id="decryptPass">
+					</form>
+				</div>
+				<div class="modal-body hide" id="decryptcontentbody">
+					<textarea data-bind="value: content" rows=5 disabled id="decryptContent" style="width: 400px"></textarea>
+				</div>
+				<div class="modal-footer">
+					<button data-bind="click: decryptSubmit" class="btn btn-primary">Decrypt</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="signup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="signupDialogLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+			<h3 id="signupDialogLabel">Sign Up</h3>
+		</div>
+		<div class="modal-body">
+			<form class="form-horizontal">
+				<div class="control-group">
+					<div class="controls">
+						<label class="control-label" for="inputName">Username</label>
+						<input data-bind="value: name" type="text" style="width: 200px" id="inputName">
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<label class="control-label" for="inputPass">Password</label>
+						<input data-bind="value: pass" type="password" style="width: 200px" id="inputPass">
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="modal-footer">
+			<button data-bind="click: signupSubmit" class="btn btn-primary">Sign up</button>
+		</div>
+		</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	var user = "Alice";
+	var ajax = function(uri, method, data, async) {
+		var request = {
+			url: uri,
+			type: method,
+			async: async,
+			contentType: "application/json",
+			accepts: "application/json",
+			cache: false,
+			dataType: 'json',
+			data: JSON.stringify(data),
+			error: function(jqXHR) {
+				console.log("ajax error " + jqXHR.status);
+			}
+		};
+		return $.ajax(request);
+	}
+var decryptViewModel = new DecryptViewModel();
+function MessagesViewModel() {
+	var self = this;
+	self.messagesURI = 'http://127.0.0.1:5000/api/messages/'+user;
+	self.messages = ko.observableArray();
+
+	ajax(self.messagesURI, 'GET').done(function(data) {
+		for (var i=0; i < data.messages.length; i++) {
+			self.messages.push({
+				content: ko.observable(data.messages[i].content),
+				originName: ko.observable(data.messages[i].originName),
+				sent: ko.observable(data.messages[i].sent)
+			});
+		}
+	});
+
+	self.compose = function() {
+		$('#compose').modal('show');
+		$('#compose-nav').addClass("active");
+	}
+	self.send = function(message)
+	{
+		console.log(message)
+		ajax(self.messagesURI, 'POST', message).done(function(data) {});
+	}
+
+	self.decrypt = function(message) {
+		$("#decrypt").modal('show');
+		decryptViewModel.setMessage(message);
+	}
+
+	self.signup = function() {
+		$('#signup').modal('show');
+		$('#signup-nav').addClass("active");
+	}
+}
+function DecryptViewModel() {
+	var self=this;
+	self.content = ko.observable();
+	self.sent = ko.observable();
+	self.destName = ko.observable();
+	self.pass = ko.observable();
+	var content;
+
+	self.setMessage = function(message) {
+		content = forge.util.decode64(message.content());
+		console.log(content);
+	}
+
+	self.decryptSubmit = function() {
+		$("#decryptcontentbody").removeClass("hide");
+		$("#decryptpassbody").addClass("hide");
+
+		var prikeyURI = "http://127.0.0.1:5000/api/privatekey/"+user;
+		console.log(prikeyURI);
+		var prikeypem = {};
+		ajax(prikeyURI, 'GET', '', false).done(function(data) {
+				prikeypem = data.privatekey;
+				console.log(data);
+				});
+		var prikey = forge.pki.decryptRsaPrivateKey(prikeypem, $("#decryptPass").val());
+		console.log(prikey);
+		console.log(prikey.decrypt(content));
+		$("#decryptContent").val(prikey.decrypt(content));
+	};
+
+}
+function SignupViewModel() {
+	var self=this;
+	self.name = ko.observable();
+	self.pass = ko.observable();
+	self.signupSubmit = function() {
+		var keypair = forge.pki.rsa.generateKeyPair({bits: 2048, e:0x10001});
+		var hash = forge.md.sha512.create();
+		hash.update($("#inputPass").val());
+
+		var user = new Object();
+		user.name = $("#inputName").val();
+		user.publickey = forge.pki.publicKeyToPem(keypair.publicKey);
+		user.privatekey= forge.pki.encryptRsaPrivateKey(keypair.privateKey, $("#inputPass").val());
+		user.passhash = hash.digest().toHex();
+		console.log(user);
+
+		$('#signup').modal('hide');
+		$('#signup-nav').removeClass("active");
+
+		ajax("http://127.0.0.1:5000/api/signup", 'POST', user, true).done(function(data) {
+				console.log(data);
+				});
+	}
+
+}
+function ComposeViewModel() {
+	var self=this;
+	self.destName = ko.observable();
+	self.content = ko.observable();
+
+	self.sendMessage = function() {
+		var message = new Object();
+		message.text = $("#inputContent").val();
+		message.destName = $("#inputDest").val();
+		message.originName = user;
+		ajax("http://127.0.0.1:5000/api/compose", 'POST', message, true);
+		$('#compose').modal('hide');
+		$('#compose-nav').removeClass("active");
+		$('#inbox-nav').addClass("active");
+		$("#inputContent").val("");
+		$("#inputDest").val("");
+	}
+	self.encryptMessage = function() {
+		// get the user name
+		var pubkeyURI = "http://127.0.0.1:5000/api/publickey/"+$("#inputDest").val();
+		var pubkeypem = {};
+		ajax(pubkeyURI, 'GET', '', false).done(function(data) {
+				pubkeypem = data.publickey;
+				});
+		var message = $("#inputContent").val();
+		var pubkey = forge.pki.publicKeyFromPem(pubkeypem);
+		$("#inputContent").val(forge.util.encode64(pubkey.encrypt(message)));
+	}
+}
+
+ko.applyBindings(new MessagesViewModel(), $('#navbar')[0]);
+ko.applyBindings(new MessagesViewModel(), $('#main')[0]);
+ko.applyBindings(new ComposeViewModel(), $('#compose')[0]);
+ko.applyBindings(new SignupViewModel(), $('#signup')[0]);
+ko.applyBindings(decryptViewModel, $('#decrypt')[0]);
+	</script>
+</body>
+</html>
+
