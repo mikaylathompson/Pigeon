@@ -15,7 +15,5 @@ class SignupForm(Form):
 class NewMessageForm(Form):
     destination = StringField('dest', [DataRequired()])
     message = StringField('message', [DataRequired()])
-    destKey = StringField('destkey')
-    is_encrypted = BooleanField('isencrypted')
 
 
